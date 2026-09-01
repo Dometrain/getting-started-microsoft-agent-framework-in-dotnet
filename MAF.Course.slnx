@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Chapter 2 - Agents/">
+    <Project Path="src/Chapter02.Console/Chapter02.Console.csproj" />
+    <Project Path="src/Chapter02.DevUI/Chapter02.DevUI.csproj" />
+  </Folder>
+  <Folder Name="/Chapter 3 - Tools/">
+    <Project Path="src/Chapter03.Console/Chapter03.Console.csproj" />
+    <Project Path="src/Chapter03.DevUI/Chapter03.DevUI.csproj" />
+  </Folder>
+  <Folder Name="/Chapter 4 - Structured Output/">
+    <Project Path="src/Chapter04.Console/Chapter04.Console.csproj" />
+  </Folder>
+  <Folder Name="/Chapter 5 - Workflows/">
+    <Project Path="src/Chapter05.Console/Chapter05.Console.csproj" />
+  </Folder>
+  <Folder Name="/Chapter 6 - Production/">
+    <Project Path="src/Chapter06.Console/Chapter06.Console.csproj" />
+  </Folder>
+</Solution>

@@ -18,7 +18,7 @@ internal static class Demos
 {
     public static async Task FirstAgentAsync()
     {
-        AIAgent joker = CreateGitHubChatClient().AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+        AIAgent joker = CreateChatClient().AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
         Console.WriteLine(await joker.RunAsync("Tell me a joke about a pirate."));
     }
 
@@ -43,14 +43,14 @@ internal static class Demos
 
     public static async Task MultiTurnAsync()
     {
-        AIAgent joker = CreateGitHubChatClient().AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+        AIAgent joker = CreateChatClient().AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
         AgentSession session = await joker.CreateSessionAsync();
         await ConversationLoopAsync(joker, session);
     }
 
     public static async Task PersistingSessionsAsync()
     {
-        AIAgent joker = CreateGitHubChatClient().AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+        AIAgent joker = CreateChatClient().AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
         const string sessionFile = "session.json";
         AgentSession session = File.Exists(sessionFile)
             ? await joker.DeserializeSessionAsync(JsonElement.Parse(await File.ReadAllTextAsync(sessionFile)))
@@ -65,7 +65,7 @@ internal static class Demos
 
     public static async Task CompactionAsync()
     {
-        IChatClient chatClient = CreateGitHubChatClient();
+        IChatClient chatClient = CreateChatClient();
         PipelineCompactionStrategy pipeline = new(
             new ToolResultCompactionStrategy(CompactionTriggers.TokensExceed(100)),
             new SummarizationCompactionStrategy(chatClient, CompactionTriggers.TokensExceed(200)),
@@ -82,11 +82,17 @@ internal static class Demos
         await ConversationLoopAsync(joker, session);
     }
 
-    private static IChatClient CreateGitHubChatClient()
+    private static IChatClient CreateChatClient()
     {
-        var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN") ?? throw new InvalidOperationException("GITHUB_TOKEN is not set.");
-        var client = new OpenAIClient(new ApiKeyCredential(token), new OpenAIClientOptions { Endpoint = new Uri("https://models.github.ai/inference") });
-        return client.GetChatClient("gpt-4o-mini").AsIChatClient();
+        // GitHub Models was retired on 30 July 2026. Point OPENAI_ENDPOINT at any OpenAI-compatible
+        // service (OpenAI, Azure OpenAI / Foundry, Ollama, ...); leave it unset to use api.openai.com.
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? throw new InvalidOperationException("OPENAI_API_KEY is not set. See README.md for how to configure a model provider.");
+        var endpoint = Environment.GetEnvironmentVariable("OPENAI_ENDPOINT");
+        var model = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4o-mini";
+        var options = new OpenAIClientOptions();
+        if (!string.IsNullOrWhiteSpace(endpoint)) options.Endpoint = new Uri(endpoint);
+        var client = new OpenAIClient(new ApiKeyCredential(apiKey), options);
+        return client.GetChatClient(model).AsIChatClient();
     }
 
     private static async Task ConversationLoopAsync(AIAgent agent, AgentSession session, Func<Task>? afterTurn = null)

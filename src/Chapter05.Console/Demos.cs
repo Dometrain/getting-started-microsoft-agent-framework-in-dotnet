@@ -68,9 +68,15 @@ internal static class Demos
 
     private static AIAgent CreateAgent(string instructions, string name, params AITool[] tools)
     {
-        var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN") ?? throw new InvalidOperationException("GITHUB_TOKEN is not set.");
-        var client = new OpenAIClient(new ApiKeyCredential(token), new OpenAIClientOptions { Endpoint = new Uri("https://models.github.ai/inference") });
-        return client.GetChatClient("gpt-4o-mini").AsIChatClient().AsAIAgent(instructions: instructions, name: name, tools: tools);
+        // GitHub Models was retired on 30 July 2026. Point OPENAI_ENDPOINT at any OpenAI-compatible
+        // service (OpenAI, Azure OpenAI / Foundry, Ollama, ...); leave it unset to use api.openai.com.
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? throw new InvalidOperationException("OPENAI_API_KEY is not set. See README.md for how to configure a model provider.");
+        var endpoint = Environment.GetEnvironmentVariable("OPENAI_ENDPOINT");
+        var model = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4o-mini";
+        var options = new OpenAIClientOptions();
+        if (!string.IsNullOrWhiteSpace(endpoint)) options.Endpoint = new Uri(endpoint);
+        var client = new OpenAIClient(new ApiKeyCredential(apiKey), options);
+        return client.GetChatClient(model).AsIChatClient().AsAIAgent(instructions: instructions, name: name, tools: tools);
     }
 
     private static async Task RunAsync(Workflow workflow, string input)

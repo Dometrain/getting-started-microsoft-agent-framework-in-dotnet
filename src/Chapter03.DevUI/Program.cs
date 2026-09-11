@@ -7,14 +7,16 @@ using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
-const string endpoint = "https://models.github.ai/inference";
-const string modelName = "gpt-4o-mini";
-var githubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN")
-    ?? throw new InvalidOperationException("GITHUB_TOKEN is not set.");
+// GitHub Models was retired on 30 July 2026. Point OPENAI_ENDPOINT at any OpenAI-compatible
+// service (OpenAI, Azure OpenAI / Foundry, Ollama, ...); leave it unset to use api.openai.com.
+var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+    ?? throw new InvalidOperationException("OPENAI_API_KEY is not set. See README.md for how to configure a model provider.");
+var endpoint = Environment.GetEnvironmentVariable("OPENAI_ENDPOINT");
+var modelName = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4o-mini";
 
-var openAIClient = new OpenAIClient(
-    new ApiKeyCredential(githubToken),
-    new OpenAIClientOptions { Endpoint = new Uri(endpoint) });
+var clientOptions = new OpenAIClientOptions();
+if (!string.IsNullOrWhiteSpace(endpoint)) clientOptions.Endpoint = new Uri(endpoint);
+var openAIClient = new OpenAIClient(new ApiKeyCredential(apiKey), clientOptions);
 
 builder.Services.AddChatClient(openAIClient.GetChatClient(modelName).AsIChatClient());
 var weatherTool = AIFunctionFactory.Create(Tools.GetCurrentWeather);

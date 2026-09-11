@@ -8,19 +8,23 @@ namespace Chapter03.ConsoleApp;
 
 internal static class AgentFactory
 {
+    // GitHub Models was retired on 30 July 2026. Point OPENAI_ENDPOINT at any OpenAI-compatible
+    // service (OpenAI, Azure OpenAI / Foundry, Ollama, ...); leave it unset to use api.openai.com.
+    private static string ModelName => Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4o-mini";
+
     public static OpenAIClient CreateClient()
     {
-        const string endpoint = "https://models.github.ai/inference";
-        var githubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN")
-            ?? throw new InvalidOperationException("GITHUB_TOKEN is not set.");
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+            ?? throw new InvalidOperationException("OPENAI_API_KEY is not set. See README.md for how to configure a model provider.");
+        var endpoint = Environment.GetEnvironmentVariable("OPENAI_ENDPOINT");
 
-        return new OpenAIClient(
-            new ApiKeyCredential(githubToken),
-            new OpenAIClientOptions { Endpoint = new Uri(endpoint) });
+        var options = new OpenAIClientOptions();
+        if (!string.IsNullOrWhiteSpace(endpoint)) options.Endpoint = new Uri(endpoint);
+        return new OpenAIClient(new ApiKeyCredential(apiKey), options);
     }
 
     public static AIAgent CreateAgent(string instructions, string name, params AITool[] tools) =>
-        CreateClient().GetChatClient("gpt-4o-mini").AsIChatClient().AsAIAgent(
+        CreateClient().GetChatClient(ModelName).AsIChatClient().AsAIAgent(
             instructions: instructions,
             name: name,
             tools: tools);

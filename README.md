@@ -48,7 +48,7 @@ export OPENAI_API_KEY="ollama"
 export OPENAI_MODEL="qwen3"
 ```
 
-Chapter 4 relies on structured output and Chapters 3-6 rely on tool calling; small local models may follow the schema less reliably than `gpt-4o-mini`.
+Chapter 4 relies on structured output and Chapters 3-7 rely on tool calling; small local models may follow the schema less reliably than `gpt-4o-mini`.
 
 On Windows PowerShell use `$env:OPENAI_API_KEY = "..."` instead of `export`.
 
@@ -67,3 +67,4 @@ Use `dotnet run --project <project> -- <demo-number>`. For example, Chapter 3 De
 | Chapter 4 Demo 00-03 | Chapter04.Console | 00-03 |
 | Chapter 5 Demo 00-05 | Chapter05.Console | 00-05 |
 | Chapter 6 Demo 00-03 | Chapter06.Console | 00-03 |
+| Chapter 7 VoltCart Support | Chapter07.VoltCartSupport | not applicable; web host with DevUI at `/devui` |

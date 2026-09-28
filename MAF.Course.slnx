@@ -16,4 +16,7 @@
   <Folder Name="/Chapter 6 - Production/">
     <Project Path="src/Chapter06.Console/Chapter06.Console.csproj" />
   </Folder>
+  <Folder Name="/Chapter 7 - VoltCart Support/">
+    <Project Path="src/Chapter07.VoltCartSupport/VoltCartSupport.csproj" />
+  </Folder>
 </Solution>
